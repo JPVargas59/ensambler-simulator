@@ -53,10 +53,35 @@ function execute(cop, td, dir) {
           break;
       }
       break;
-    default:
+    case "STA":
+    switch (td) {
+      case "A":
+        memoria[dir] = ac.innerHTML;
+        mar.innerHTML = dir;
+        mdr.innerHTML = ac.innerHTML;
+        pc.innerHTML = ++p;
+        break;
+      case 'D':
+        memoria[memoria[dir]] = ac.innerHTML;
+        mar.innerHTML = memoria[dir];
+        pc.innerHTML = ++p;
+        break;
+      case "R":
+        ac.innerHTML = memoria[dir + p];
+        mar.innerHTML = dir + p;
+        mdr.innerHTML = memoria[dir + p]
+        break;
+      default: alert("No existe direccionamiento " + dir + " en la linea " + p);
+        break;
+    }
+
+        default:
+      break;
+    }
+
 
   }
-}
+
 
 function clearReg(){
   ac.innerHTML = 0;
