@@ -17,7 +17,8 @@ function instruction() {
   var lineas = $('textarea').val().split('\n');
   for (var i = 0; i < lineas.length; i++) {
     cop = (memoria[i].substr(0, 3));
-    var td = (memoria[i].substr(3, 1));
+    var td = (memoria[i].substr(3, 1));Ric
+
     var dir = (memoria[i].substr(4, 3));
     if(!finish){
         execute(cop, td, dir);
