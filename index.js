@@ -6,27 +6,44 @@ const mar = document.getElementById('mar');
 const mdr = document.getElementById('mdr');
 const fr = document.getElementById('fr');
 const ir = document.getElementById('ir');
+const range = document.getElementById('myRange');
+const rangeLabel = document.getElementById('myRangeLabel');
 
 var memoria = [];
 var p = 1; //contador del pc
 var hlt = false;
+var delay = 0;
+
+rangeLabel.innerHTML = "Delay: " + range.value; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+range.oninput = function() {
+    rangeLabel.innerHTML = "Delay: " + this.value + " segundos";
+    delay = range.value * 1000;
+}
 
 
 boton.addEventListener("click", click);
 
-function instruction() {
-  for (var i = 0; i < memoria.length; i++) {
+function instructionTimeout(i){
+  setTimeout(function(){
     if (memoria[i] != undefined) {
       cop = (memoria[i].substr(0, 3));
       var td = (memoria[i].substr(3, 1));
       var dir = (memoria[i].substr(4, 3));
       if (!hlt) {
+        ir.innerHTML = p;
         execute(cop, td, dir);
       }
-
-
     }
-  }
+  }, i * delay);
+
+}
+
+function instruction() {
+    for (var i = 0; i < memoria.length; i++) {
+      instructionTimeout(i);
+    }
 }
 
 function execute(cop, td, dir) {
@@ -35,6 +52,7 @@ function execute(cop, td, dir) {
       switch (td) {
         case "I":
           ac.innerHTML = dir;
+          ir.innerHTML = p;
           pc.innerHTML = ++p;
           break;
         case "A":
@@ -90,7 +108,7 @@ function execute(cop, td, dir) {
     case "ADD":
       switch (td) {
         case "I":
-          ac.innerHTML = ac.innerHTML + dir;
+          ac.innerHTML = parseInt(ac.innerHTML) + parseInt(dir);
           pc.innerHTML = ++p;
           break;
         case "A":
@@ -141,7 +159,7 @@ function execute(cop, td, dir) {
     case "NOP":
 
     default:
-    alert("La instrucción " + cop + " no es valida");
+      alert("La instrucción " + cop + " no es valida");
 
   }
 
