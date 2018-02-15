@@ -9,29 +9,57 @@ const ir = document.getElementById('ir');
 
 var memoria = [];
 var p = 1; //contador del pc
-var finish = false;
+var hlt = false;
+
 
 boton.addEventListener("click", click);
 
 function instruction() {
-  var lineas = $('textarea').val().split('\n');
-  for (var i = 0; i < lineas.length; i++) {
-    cop = (memoria[i].substr(0, 3));
-    var td = (memoria[i].substr(3, 1));Ric
-
-    var dir = (memoria[i].substr(4, 3));
-    if(!finish){
+  for (var i = 0; i < memoria.length; i++) {
+    if (memoria[i] != undefined) {
+      cop = (memoria[i].substr(0, 3));
+      var td = (memoria[i].substr(3, 1));
+      var dir = (memoria[i].substr(4, 3));
+      if (!hlt) {
         execute(cop, td, dir);
+      }
+
+
     }
-
   }
-
 }
 
 function execute(cop, td, dir) {
   switch (cop) {
     case "LDA":
       switch (td) {
+        case "I":
+          ac.innerHTML = dir;
+          pc.innerHTML = ++p;
+          break;
+        case "A":
+          ac.innerHTML = memoria[dir];
+          mar.innerHTML = dir;
+          mdr.innerHTML = memoria[dir];
+          pc.innerHTML = ++p;
+          break;
+        case 'D':
+          ac.innerHTML = memoria[memoria[dir]];
+          mar.innerHTML = dir;
+          mdr.innerHTML = dir;
+          mar.innerHTML = memoria[dir];
+          pc.innerHTML = ++p;
+          break;
+        case "R":
+          ac.innerHTML = memoria[dir + p];
+          mar.innerHTML = dir + p;
+          mdr.innerHTML = memoria[dir + p]
+          pc.innerHTML = ++p;
+          break;
+        default:
+          alert("No existe tipo de direccionamiento " + td + " en la linea " + p);
+          break;
+      }
       break;
     case "STA":
       switch (td) {
@@ -52,19 +80,80 @@ function execute(cop, td, dir) {
           mdr.innerHTML = memoria[dir + p]
           break;
         default:
-          alert("No existe direccionamiento " + dir + " en la linea " + p);
+          alert("No existe tipo de direccionamiento " + td + " en la linea " + p);
+          break;
       }
+      break;
+    case "CLA":
+      ac.innerHTML = 0;
+      break;
+    case "ADD":
+      switch (td) {
+        case "I":
+          ac.innerHTML = ac.innerHTML + dir;
+          pc.innerHTML = ++p;
+          break;
+        case "A":
+          ac.innerHTML = ac.innerHTML + memoria[dir];
+          mar.innerHTML = dir;
+          mdr.innerHTML = memoria[dir];
+          pc.innerHTML = ++p;
+          break;
+        case "D":
+          ac.innerHTML = ac.innerHTML + memoria[memoria[dir]];
+          mar.innerHTML = memoria[dir];
+          mdr.innerHTML = memoria[memoria[dir]];
+          pc.innerHTML = ++p;
+          break;
+        default:
+          alert("No existe tipo de direccionamiento " + td + " en la linea " + p);
+      }
+      break;
+    case "HLT":
+      hlt = true;
+      break;
+    case "SUB":
+      switch (td) {
+        case "I":
+          ac.innerHTML = ac.innerHTML - dir;
+          pc.innerHTML = ++p;
+          break;
+        case "A":
+          ac.innerHTML = ac.innerHTML - memoria[dir];
+          mar.innerHTML = dir;
+          mdr.innerHTML = memoria[dir];
+          pc.innerHTML = ++p;
+          break;
+        case "D":
+          ac.innerHTML = ac.innerHTML - memoria[memoria[dir]];
+          mar.innerHTML = memoria[dir];
+          mdr.innerHTML = memoria[memoria[dir]];
+          pc.innerHTML = ++p;
+          break;
+        default:
+          alert("No existe tipo de direccionamiento " + td + " en la linea " + p);
+      }
+      break;
+    case "NEG":
+      ac.innerHTML = -ac.innerHTML;
+      pc.innerHTML = ++p;
+      break;
+    case "NOP":
 
     default:
+    alert("La instrucción " + cop + " no es valida");
+
   }
 
 
 }
 
 
+
 function clearReg() {
   ac.innerHTML = 0;
   pc.innerHTML = 1;
+  p = 1;
   mar.innerHTML = 0;
   mdr.innerHTML = 0;
   fr.innerHTML = 0;
@@ -74,25 +163,16 @@ function clearReg() {
 function click() {
   clearReg();
   passMemory();
+  showMemory(memoria);
   instruction();
-
-  /*
-    var cop = (memoria[i].substr(0,3));
-    var td =  (memoria[i].substr(3,1));
-    var dir = (memoria[i].substr(4,3));
-  alert(cop);
-  */
-
-
+  showMemory(memoria);
 }
 
 function passMemory() {
   var lines = $('textarea').val().split('\n');
   for (var i = 0; i < lines.length; i++) {
     memoria[i] = lines[i];
-
   }
-  showMemory(memoria);
 }
 
 function showMemory(memoria) {
@@ -118,7 +198,13 @@ function showMemory(memoria) {
     var cel2 = row.insertCell(1);
 
     cel1.innerHTML = i;
-    cel2.innerHTML = memoria[i];
+    if (memoria[i] != undefined) {
+      cel2.innerHTML = memoria[i];
+    } else {
+      memoria[i] = 0;
+      cel2.innerHTML = memoria[i];
+    }
+
 
   }
 
