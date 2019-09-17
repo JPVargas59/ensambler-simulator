@@ -6,21 +6,44 @@ const mar = document.getElementById('mar');
 const mdr = document.getElementById('mdr');
 const fr = document.getElementById('fr');
 const ir = document.getElementById('ir');
+const range = document.getElementById('myRange');
+const rangeLabel = document.getElementById('myRangeLabel');
 
 var memoria = [];
-var p = 1;  //contador del pc
+var p = 1; //contador del pc
+var hlt = false;
+var delay = 0;
+
+rangeLabel.innerHTML = "Delay: " + range.value; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+range.oninput = function() {
+    rangeLabel.innerHTML = "Delay: " + this.value + " segundos";
+    delay = range.value * 1000;
+}
+
 
 boton.addEventListener("click", click);
 
-function instruction() {
-  var lineas = $('textarea').val().split('\n');
-  for (var i = 0; i < lineas.length; i++) {
-    cop = (memoria[i].substr(0, 3));
-    var td = (memoria[i].substr(3, 1));
-    var dir = (memoria[i].substr(4, 3));
-    execute(cop, td, dir);
-  }
+function instructionTimeout(i){
+  setTimeout(function(){
+    if (memoria[i] != undefined) {
+      cop = (memoria[i].substr(0, 3));
+      var td = (memoria[i].substr(3, 1));
+      var dir = (memoria[i].substr(4, 3));
+      if (!hlt) {
+        ir.innerHTML = p;
+        execute(cop, td, dir);
+      }
+    }
+  }, i * delay);
 
+}
+
+function instruction() {
+    for (var i = 0; i < memoria.length; i++) {
+      instructionTimeout(i);
+    }
 }
 
 function execute(cop, td, dir) {
@@ -29,6 +52,7 @@ function execute(cop, td, dir) {
       switch (td) {
         case "I":
           ac.innerHTML = dir;
+          ir.innerHTML = p;
           pc.innerHTML = ++p;
           break;
         case "A":
@@ -48,46 +72,108 @@ function execute(cop, td, dir) {
           ac.innerHTML = memoria[dir + p];
           mar.innerHTML = dir + p;
           mdr.innerHTML = memoria[dir + p]
+          pc.innerHTML = ++p;
           break;
-        default: alert("No existe direccionamiento " + dir + " en la linea " + p);
+        default:
+          alert("No existe tipo de direccionamiento " + td + " en la linea " + p);
           break;
       }
       break;
     case "STA":
-    switch (td) {
-      case "A":
-        memoria[dir] = ac.innerHTML;
-        mar.innerHTML = dir;
-        mdr.innerHTML = ac.innerHTML;
-        pc.innerHTML = ++p;
-        break;
-      case 'D':
-        memoria[memoria[dir]] = ac.innerHTML;
-        mar.innerHTML = memoria[dir];
-        pc.innerHTML = ++p;
-        break;
-      case "R":
-        ac.innerHTML = memoria[dir + p];
-        mar.innerHTML = dir + p;
-        mdr.innerHTML = memoria[dir + p]
-        break;
-      default: alert("No existe direccionamiento " + dir + " en la linea " + p);
-        break;
-    }
-
+      switch (td) {
+        case "A":
+          memoria[dir] = ac.innerHTML;
+          mar.innerHTML = dir;
+          mdr.innerHTML = ac.innerHTML;
+          pc.innerHTML = ++p;
+          break;
+        case 'D':
+          memoria[memoria[dir]] = ac.innerHTML;
+          mar.innerHTML = memoria[dir];
+          pc.innerHTML = ++p;
+          break;
+        case "R":
+          ac.innerHTML = memoria[dir + p];
+          mar.innerHTML = dir + p;
+          mdr.innerHTML = memoria[dir + p]
+          break;
         default:
+          alert("No existe tipo de direccionamiento " + td + " en la linea " + p);
+          break;
+      }
       break;
-    }
+    case "CLA":
+      ac.innerHTML = 0;
+      break;
+    case "ADD":
+      switch (td) {
+        case "I":
+          ac.innerHTML = parseInt(ac.innerHTML) + parseInt(dir);
+          pc.innerHTML = ++p;
+          break;
+        case "A":
+          ac.innerHTML = ac.innerHTML + memoria[dir];
+          mar.innerHTML = dir;
+          mdr.innerHTML = memoria[dir];
+          pc.innerHTML = ++p;
+          break;
+        case "D":
+          ac.innerHTML = ac.innerHTML + memoria[memoria[dir]];
+          mar.innerHTML = memoria[dir];
+          mdr.innerHTML = memoria[memoria[dir]];
+          pc.innerHTML = ++p;
+          break;
+        default:
+          alert("No existe tipo de direccionamiento " + td + " en la linea " + p);
+      }
+      break;
+    case "HLT":
+      hlt = true;
+      break;
+    case "SUB":
+      switch (td) {
+        case "I":
+          ac.innerHTML = ac.innerHTML - dir;
+          pc.innerHTML = ++p;
+          break;
+        case "A":
+          ac.innerHTML = ac.innerHTML - memoria[dir];
+          mar.innerHTML = dir;
+          mdr.innerHTML = memoria[dir];
+          pc.innerHTML = ++p;
+          break;
+        case "D":
+          ac.innerHTML = ac.innerHTML - memoria[memoria[dir]];
+          mar.innerHTML = memoria[dir];
+          mdr.innerHTML = memoria[memoria[dir]];
+          pc.innerHTML = ++p;
+          break;
+        default:
+          alert("No existe tipo de direccionamiento " + td + " en la linea " + p);
+      }
+      break;
+    case "NEG":
+      ac.innerHTML = -ac.innerHTML;
+      pc.innerHTML = ++p;
+      break;
+    case "NOP":
 
+    default:
+      alert("La instrucción " + cop + " no es valida");
 
   }
 
 
-function clearReg(){
+}
+
+
+
+function clearReg() {
   ac.innerHTML = 0;
   pc.innerHTML = 1;
- mar.innerHTML = 0;
- mdr.innerHTML = 0;
+  p = 1;
+  mar.innerHTML = 0;
+  mdr.innerHTML = 0;
   fr.innerHTML = 0;
   ir.innerHTML = 0;
 }
@@ -95,25 +181,16 @@ function clearReg(){
 function click() {
   clearReg();
   passMemory();
+  showMemory(memoria);
   instruction();
-
-  /*
-    var cop = (memoria[i].substr(0,3));
-    var td =  (memoria[i].substr(3,1));
-    var dir = (memoria[i].substr(4,3));
-  alert(cop);
-  */
-
-
+  showMemory(memoria);
 }
 
 function passMemory() {
   var lines = $('textarea').val().split('\n');
   for (var i = 0; i < lines.length; i++) {
     memoria[i] = lines[i];
-
   }
-  showMemory(memoria);
 }
 
 function showMemory(memoria) {
@@ -139,7 +216,13 @@ function showMemory(memoria) {
     var cel2 = row.insertCell(1);
 
     cel1.innerHTML = i;
-    cel2.innerHTML = memoria[i];
+    if (memoria[i] != undefined) {
+      cel2.innerHTML = memoria[i];
+    } else {
+      memoria[i] = 0;
+      cel2.innerHTML = memoria[i];
+    }
+
 
   }
 

@@ -4,10 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Ensambler Eloy</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Ensambler 2.0</title>
 
     <script src="jquery.js"></script>
+    <link rel="stylesheet" href="master.css">
 
 
 </head>
@@ -31,6 +32,11 @@
                         <textarea class="form-control" id="textArea" rows="12"></textarea>
                         <br>
                         <button type="button" class="btn btn-success btn-block" id="execute">Execute</button>
+                        <br>
+                        <div class="slidecontainer">
+                          <input type="range" min="0" max="10" value="0" class="slider" id="myRange">
+                          <label id="myRangeLabel" for="myRange">Delay </label>
+                        </div>
                     </div>
                 </form>
             </div>
